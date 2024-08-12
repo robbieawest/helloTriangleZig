@@ -7,13 +7,10 @@ const c = @cImport({
     @cInclude("GL/gl.h");
 });
 
-// Define the type for wglGetProcAddress
 const WglGetProcAddress = *const fn ([*c]const u8) callconv(.C) ?*anyopaque;
 
-// Global variable to hold the wglGetProcAddress function pointer
 var wglGetProcAddressPtr: ?WglGetProcAddress = null;
 
-// Function to load wglGetProcAddress
 fn loadWglGetProcAddress() !void {
     const opengl32 = c.LoadLibraryA("opengl32.dll");
     if (opengl32 == null) return error.FailedToLoadOpenGL32;
@@ -22,7 +19,6 @@ fn loadWglGetProcAddress() !void {
     if (wglGetProcAddressPtr == null) return error.FailedToGetWglGetProcAddress;
 }
 
-// The main getProcAddress function
 pub fn getProcAddress(name: [*:0]const u8) ?*const anyopaque {
     if (wglGetProcAddressPtr == null) {
         loadWglGetProcAddress() catch |err| {
