@@ -12,6 +12,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    //SFML with CSFML and zig-sfml-wrapper by Guigui220D
     const sfml_dep = b.dependency("sfml", .{}).module("sfml");
     exe.root_module.addImport("sfml", sfml_dep);
 
@@ -20,6 +21,18 @@ pub fn build(b: *std.Build) void {
 
     sfml.link(exe);
 
+    //OpenGL bindings with zigglgen
+    const gl_bindings = @import("zigglgen").generateBindingsModule(b, .{
+        .api = .gl,
+        .version = .@"4.1",
+        .profile = .core,
+        .extensions = &.{ .ARB_clip_control, .NV_scissor_exclusive },
+    });
+
+    exe.root_module.addImport("gl", gl_bindings);
+    exe.linkSystemLibrary("opengl32");
+
+    //Install and run
     b.installArtifact(exe);
 
     if (b.option(bool, "run", "Run the app") orelse false) {
