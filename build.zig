@@ -11,6 +11,19 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const mach_glfw_dep = b.dependency("mach-glfw", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.root_module.addImport("mach-glfw", mach_glfw_dep.module("mach-glfw"));
+
+    const gl_bindings = @import("zigglgen").generateBindingsModule(b, .{
+        .api = .gl,
+        .version = .@"4.1",
+        .profile = .core,
+    });
+    exe.root_module.addImport("gl", gl_bindings);
+
     b.installArtifact(exe);
 
     if (b.option(bool, "run", "Run the app") orelse false) {
