@@ -23,20 +23,17 @@
     // Once all dependencies are fetched, `zig build` no longer requires
     // internet connectivity.
     .dependencies = .{
-        .zigglgen = .{
-            .url = "https://github.com/castholm/zigglgen/releases/download/v0.2.3/zigglgen.tar.gz",
-            .hash = "1220f4188a5e1bdbb15fd50e9ea322c0721384eeba9bc077e4179b0b0eeaa7fe4ad9",
-        },
-        .@"mach-glfw" = .{
-            .url = "https://pkg.machengine.org/mach-glfw/1a9a03399058fd83f7fbb597f3f8304007ff6a3c.tar.gz",
-            .hash = "1220b4d58ec6cf53abfd8d7547d39afb9bffa41822d4d58f52625230466e51cc93bb",
+        .sfml = .{
+            .url = "https://github.com/Guigui220D/zig-sfml-wrapper/archive/d5272051a937c8a3756bb96eab8276b76a271de4.tar.gz",
+            .hash = "1220c897063c53ef5a4ed79ce7e3f7ef4192ece222a788a2ac6d9bb7ac1dbcb26e8d",
         },
     },
     .paths = .{
         "build.zig",
         "build.zig.zon",
         "src",
-        "LICENSE",
-        "README.md",
+        // For example...
+        //"LICENSE",
+        //"README.md",
     },
 }
