@@ -8,7 +8,6 @@ const c = @cImport({
 });
 
 const WglGetProcAddress = *const fn ([*c]const u8) callconv(.C) ?*anyopaque;
-
 var wglGetProcAddressPtr: ?WglGetProcAddress = null;
 
 fn loadWglGetProcAddress() !void {
@@ -40,7 +39,6 @@ pub fn getProcAddress(name: [*:0]const u8) ?*const anyopaque {
 var procs: gl.ProcTable = undefined;
 
 pub fn main() !void {
-    std.debug.print("Hello world!", .{});
     var window = try sf.RenderWindow.createDefault(.{ .x = 800, .y = 800 }, "Hello Triangle");
     defer window.destroy();
 
@@ -59,7 +57,7 @@ pub fn main() !void {
     gl.GenBuffers(1, @ptrCast(&VBO));
     defer gl.DeleteBuffers(1, @ptrCast(&VBO));
     gl.BindBuffer(gl.ARRAY_BUFFER, VBO);
-    gl.BufferData(gl.ARRAY_BUFFER, @sizeOf(f32) * vertices.len, &vertices, gl.STATIC_DRAW);
+    gl.BufferData(gl.ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), &vertices, gl.STATIC_DRAW);
 
     const vertexShaderSource = "#version 330core\n" ++
         "layout (location = 0) in vec3 aPos;\n" ++
@@ -73,6 +71,19 @@ pub fn main() !void {
     gl.ShaderSource(vertexShader, 1, &[1][*]const u8{vertexShaderSource}, null);
     gl.CompileShader(vertexShader);
 
+    {
+        var success: ?c_int = null;
+        var infoLog: ?[512]u8 = null;
+        gl.GetShaderiv(vertexShader, gl.COMPILE_STATUS, @ptrCast(&success));
+        std.debug.print("{d}\n", .{success orelse 0});
+
+        if (success == null) {
+            gl.GetShaderInfoLog(vertexShader, 512, null, @ptrCast(&infoLog));
+            if (infoLog) |log|
+                std.debug.print("Vertex shader compilation error: {s}", .{log});
+        }
+    }
+
     const fragmentShaderSource = "#version 330core\n" ++
         "out vec4 FragColor;\n" ++
         "void main()\n" ++
@@ -85,10 +96,35 @@ pub fn main() !void {
     gl.ShaderSource(fragmentShader, 1, &[1][*]const u8{fragmentShaderSource}, null);
     gl.CompileShader(fragmentShader);
 
+    {
+        var success: ?c_int = null;
+        var infoLog: ?[512]u8 = null;
+        gl.GetShaderiv(fragmentShader, gl.COMPILE_STATUS, @ptrCast(&success));
+        std.debug.print("{d}\n", .{success orelse 0});
+
+        if (success == null) {
+            gl.GetShaderInfoLog(fragmentShader, 512, null, @ptrCast(&infoLog));
+            if (infoLog) |log|
+                std.debug.print("Fragment shader compilation error: {s}", .{log});
+        }
+    }
+
     const shaderProgram: c_uint = gl.CreateProgram();
     gl.AttachShader(shaderProgram, vertexShader);
     gl.AttachShader(shaderProgram, fragmentShader);
     gl.LinkProgram(shaderProgram);
+
+    {
+        var success: c_int = undefined;
+        const infoLog: [*]u8 = undefined;
+        gl.GetShaderiv(shaderProgram, gl.LINK_STATUS, @ptrCast(&success));
+        std.debug.print("{d}\n", .{success});
+        if (success != 1) {
+            gl.GetShaderInfoLog(shaderProgram, 512, null, infoLog);
+            std.debug.print("Shader program linking error", .{});
+        }
+    }
+
     gl.UseProgram(shaderProgram);
 
     //Linking vertex attributes, simple 3 v pos no colour or normals tight packed
@@ -102,7 +138,7 @@ pub fn main() !void {
         }
 
         gl.ClearColor(0.2, 0.5, 0.3, 1.0);
-        window.clear(sf.Color.Blue);
+        // window.clear(sf.Color.Blue);
 
         //Draw
         gl.UseProgram(shaderProgram);
