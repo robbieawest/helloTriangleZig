@@ -47,7 +47,7 @@ pub fn main() !void {
     gl.makeProcTableCurrent(&procs);
     defer gl.makeProcTableCurrent(null);
 
-    const vertices = [9]f32{ -0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0 }; //stupid zls formatting gonna make me jump off a high structure
+    const vertices = [9]f32{ -0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0 };
 
     var VAO: c_uint = undefined;
     gl.GenVertexArrays(1, @ptrCast(&VAO));
