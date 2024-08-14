@@ -135,9 +135,7 @@ pub fn main() !void {
             if (event == .closed)
                 window.close();
         }
-
-        gl.ClearColor(0.2, 0.5, 0.3, 1.0);
-        // window.clear(sf.Color.Blue);
+        gl.Clear(gl.COLOR_BUFFER_BIT);
 
         //Draw
         gl.UseProgram(shaderProgram);
