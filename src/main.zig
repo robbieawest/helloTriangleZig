@@ -59,7 +59,7 @@ pub fn main() !void {
     gl.BindBuffer(gl.ARRAY_BUFFER, VBO);
     gl.BufferData(gl.ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), &vertices, gl.STATIC_DRAW);
 
-    const vertexShaderSource = "#version 330core\n" ++
+    const vertexShaderSource = "#version 410 core\n" ++
         "layout (location = 0) in vec3 aPos;\n" ++
         "void main()\n" ++
         "{\n" ++
@@ -72,19 +72,18 @@ pub fn main() !void {
     gl.CompileShader(vertexShader);
 
     {
-        var success: ?c_int = null;
-        var infoLog: ?[512]u8 = null;
+        var success: c_int = undefined;
+        var infoLog: [512]u8 = undefined;
+        var logLength: c_int = undefined;
         gl.GetShaderiv(vertexShader, gl.COMPILE_STATUS, @ptrCast(&success));
-        std.debug.print("{d}\n", .{success orelse 0});
 
-        if (success == null) {
-            gl.GetShaderInfoLog(vertexShader, 512, null, @ptrCast(&infoLog));
-            if (infoLog) |log|
-                std.debug.print("Vertex shader compilation error: {s}", .{log});
+        if (success == gl.FALSE) {
+            gl.GetShaderInfoLog(vertexShader, 512, &logLength, &infoLog);
+            std.debug.print("Vertex shader compilation error: {s}\n", .{infoLog[0..@intCast(logLength)]});
         }
     }
 
-    const fragmentShaderSource = "#version 330core\n" ++
+    const fragmentShaderSource = "#version 410 core\n" ++
         "out vec4 FragColor;\n" ++
         "void main()\n" ++
         "{\n" ++
@@ -97,15 +96,14 @@ pub fn main() !void {
     gl.CompileShader(fragmentShader);
 
     {
-        var success: ?c_int = null;
-        var infoLog: ?[512]u8 = null;
+        var success: c_int = undefined;
+        var infoLog: [512]u8 = undefined;
+        var logLength: c_int = undefined;
         gl.GetShaderiv(fragmentShader, gl.COMPILE_STATUS, @ptrCast(&success));
-        std.debug.print("{d}\n", .{success orelse 0});
 
-        if (success == null) {
-            gl.GetShaderInfoLog(fragmentShader, 512, null, @ptrCast(&infoLog));
-            if (infoLog) |log|
-                std.debug.print("Fragment shader compilation error: {s}", .{log});
+        if (success == gl.FALSE) {
+            gl.GetShaderInfoLog(fragmentShader, 512, &logLength, &infoLog);
+            std.debug.print("Fragment shader compilation error: {s}\n", .{infoLog[0..@intCast(logLength)]});
         }
     }
 
@@ -116,12 +114,13 @@ pub fn main() !void {
 
     {
         var success: c_int = undefined;
-        const infoLog: [*]u8 = undefined;
+        var infoLog: [512]u8 = undefined;
+        var logLength: c_int = undefined;
         gl.GetShaderiv(shaderProgram, gl.LINK_STATUS, @ptrCast(&success));
-        std.debug.print("{d}\n", .{success});
-        if (success != 1) {
-            gl.GetShaderInfoLog(shaderProgram, 512, null, infoLog);
-            std.debug.print("Shader program linking error", .{});
+
+        if (success == gl.FALSE) {
+            gl.GetShaderInfoLog(shaderProgram, 512, &logLength, &infoLog);
+            std.debug.print("Shader program linking error: {s}\n", .{infoLog[0..@intCast(logLength)]});
         }
     }
 
