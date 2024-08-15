@@ -90,6 +90,8 @@ pub fn main() !void {
         "   FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n" ++
         "};";
 
+    std.debug.print("{any}\n", .{@TypeOf(fragmentShaderSource)});
+
     const fragmentShader: c_uint = gl.CreateShader(gl.FRAGMENT_SHADER);
     defer gl.DeleteShader(fragmentShader);
     gl.ShaderSource(fragmentShader, 1, &[1][*]const u8{fragmentShaderSource}, null);
